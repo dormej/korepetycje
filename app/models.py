@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import User
+
 
 # Create your models here.
 
@@ -7,6 +9,7 @@ class Teacher(models.Model):
     name = models.CharField(max_length=60)
     last_name = models.CharField(max_length=100)
     email = models.EmailField()
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Teachers'
@@ -15,6 +18,19 @@ class Teacher(models.Model):
 
     def __str__(self):
         return f'{self.last_name}, {self.name}'
+
+
+class Group(models.Model):
+    name = models.CharField(max_length=100)
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Groups'
+        verbose_name_plural = 'Groups'
+
+    def __str__(self):
+        return f'{self.name}'
 
 
 class Student(models.Model):
@@ -28,7 +44,8 @@ class Student(models.Model):
     school = models.CharField(choices=SCHOOL_CHOICES, max_length=25)
     edu_level = models.CharField('Klasa', max_length=1)
     phone = models.CharField(max_length=9)
-    teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, blank=True, null=True)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, blank=True, null=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Students'
@@ -42,6 +59,8 @@ class Student(models.Model):
 class Exercise(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
+    group = models.ForeignKey(Group, on_delete=models.SET_NULL, blank=True, null=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Exercises'
